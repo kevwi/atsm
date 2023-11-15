@@ -1,0 +1,692 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/css/tom-select.min.css" integrity="sha512-43fHB3GLgZfz8QXl1RPQ8O66oIgv3po9cJ5erMt1c4QISq9dYb195T3vr5ImnJPXuVroKcGBPXBFKETW8jrPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/js/tom-select.complete.js" integrity="sha512-jeF9CfnvzDiw9G9xiksVjxR2lib44Gnovvkv+3CgCG6NXCD4gqlA5nDAVW5WjpA+i+/zKsUWV5xNEbW1X/HH0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 1000px;
+                 height: 1000px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="Accident">Accident</option>
+                                
+                                    <option value="PTSD/C-PTSD">PTSD/C-PTSD</option>
+                                
+                                    <option value="Alexithymia">Alexithymia</option>
+                                
+                                    <option value="Inactivity">Inactivity</option>
+                                
+                                    <option value="Interoception Issues">Interoception Issues</option>
+                                
+                                    <option value="Allergies/Asthma">Allergies/Asthma</option>
+                                
+                                    <option value="Brain Fog">Brain Fog</option>
+                                
+                                    <option value="Burn(out)">Burn(out)</option>
+                                
+                                    <option value="Depression">Depression</option>
+                                
+                                    <option value="Difficulty Concentrating">Difficulty Concentrating</option>
+                                
+                                    <option value="Dysregulation">Dysregulation</option>
+                                
+                                    <option value="Fatigue">Fatigue</option>
+                                
+                                    <option value="Headache/Migraine">Headache/Migraine</option>
+                                
+                                    <option value="Irritability">Irritability</option>
+                                
+                                    <option value="Isolation/Loneliness">Isolation/Loneliness</option>
+                                
+                                    <option value="Meltdown">Meltdown</option>
+                                
+                                    <option value="Shutdown">Shutdown</option>
+                                
+                                    <option value="Skin Problems">Skin Problems</option>
+                                
+                                    <option value="Working Memory Issues">Working Memory Issues</option>
+                                
+                                    <option value="Anxiety + Social Anxiety">Anxiety + Social Anxiety</option>
+                                
+                                    <option value="Sensory Dysregulation">Sensory Dysregulation</option>
+                                
+                                    <option value="Substance Abuse">Substance Abuse</option>
+                                
+                                    <option value="Assault/Abuse/SA">Assault/Abuse/SA</option>
+                                
+                                    <option value="Avoidance">Avoidance</option>
+                                
+                                    <option value="Homelessness">Homelessness</option>
+                                
+                                    <option value="SI->MD">SI->MD</option>
+                                
+                                    <option value="Stigma">Stigma</option>
+                                
+                                    <option value="Toxic Stress">Toxic Stress</option>
+                                
+                                    <option value="Trouble Maintaining Relationships">Trouble Maintaining Relationships</option>
+                                
+                                    <option value="Assimilation">Assimilation</option>
+                                
+                                    <option value="Autoimmune Diseases">Autoimmune Diseases</option>
+                                
+                                    <option value="Digestive Problems">Digestive Problems</option>
+                                
+                                    <option value="Dry skin/sensitivity to cold">Dry skin/sensitivity to cold</option>
+                                
+                                    <option value="Fibromyalgia">Fibromyalgia</option>
+                                
+                                    <option value="Recurring fever">Recurring fever</option>
+                                
+                                    <option value="Swollen glands">Swollen glands</option>
+                                
+                                    <option value="Weight changes">Weight changes</option>
+                                
+                                    <option value="Bipolar Disorder">Bipolar Disorder</option>
+                                
+                                    <option value="Cancer">Cancer</option>
+                                
+                                    <option value="Heart Disease">Heart Disease</option>
+                                
+                                    <option value="Bullying/Shunning">Bullying/Shunning</option>
+                                
+                                    <option value="Childhood Toxic Stress">Childhood Toxic Stress</option>
+                                
+                                    <option value="Psychosis/Schizophrenia">Psychosis/Schizophrenia</option>
+                                
+                                    <option value="Chronic Infection">Chronic Infection</option>
+                                
+                                    <option value="Chronic Insomnia">Chronic Insomnia</option>
+                                
+                                    <option value="Accident risk">Accident risk</option>
+                                
+                                    <option value="High Blood Pressure">High Blood Pressure</option>
+                                
+                                    <option value="Poor School/Job Performance">Poor School/Job Performance</option>
+                                
+                                    <option value="Cold/Flu/Infection">Cold/Flu/Infection</option>
+                                
+                                    <option value="Compensation">Compensation</option>
+                                
+                                    <option value="Death of a Loved One">Death of a Loved One</option>
+                                
+                                    <option value="Fibromyalgia/AMPS">Fibromyalgia/AMPS</option>
+                                
+                                    <option value="Executive Function">Executive Function</option>
+                                
+                                    <option value="Alondynia">Alondynia</option>
+                                
+                                    <option value="Gaslighting">Gaslighting</option>
+                                
+                                    <option value="Masking">Masking</option>
+                                
+                                    <option value="Natural Disaster">Natural Disaster</option>
+                                
+                                    <option value="Serious Medical Condition">Serious Medical Condition</option>
+                                
+                                    <option value="Susceptible to viral infections">Susceptible to viral infections</option>
+                                
+                                    <option value="Increased risk of diabetes">Increased risk of diabetes</option>
+                                
+                                    <option value="increased risk of ulcerative colitis">increased risk of ulcerative colitis</option>
+                                
+                                    <option value="Increased time to recover from illness">Increased time to recover from illness</option>
+                                
+                                    <option value="Muscle Weakness">Muscle Weakness</option>
+                                
+                                    <option value="War">War</option>
+                                
+                                    <option value="Racism">Racism</option>
+                                
+                                    <option value="LGBTQIA+ Bigotry">LGBTQIA+ Bigotry</option>
+                                
+                                    <option value="Misogyny">Misogyny</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "white"}, "id": "Accident", "label": "Accident", "shape": "dot", "size": 20.0, "title": "Accident Neighbors:\u003cbr\u003ePTSD/C-PTSD", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "PTSD/C-PTSD", "label": "PTSD/C-PTSD", "shape": "dot", "title": "PTSD/C-PTSD Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eSI-\u003eMD\u003cbr\u003eAssimilation\u003cbr\u003eMeltdown\u003cbr\u003eHomelessness\u003cbr\u003eAccident\u003cbr\u003eWar\u003cbr\u003eAlexithymia\u003cbr\u003eChildhood Toxic Stress\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eInactivity\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eDeath of a Loved One\u003cbr\u003eMisogyny\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eStigma\u003cbr\u003eGaslighting\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAvoidance\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eSerious Medical Condition\u003cbr\u003eBullying/Shunning\u003cbr\u003eNatural Disaster\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eRacism", "value": 32}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Alexithymia", "label": "Alexithymia", "shape": "dot", "size": 10.0, "title": "Alexithymia Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eMasking\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eMisogyny\u003cbr\u003eBullying/Shunning\u003cbr\u003eGaslighting\u003cbr\u003eAssimilation\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eCompensation\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eRacism\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD", "value": 14}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Inactivity", "label": "Inactivity", "shape": "dot", "title": "Inactivity Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eMeltdown\u003cbr\u003eChronic Infection\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eAlexithymia\u003cbr\u003eBurn(out)\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eHeadache/Migraine\u003cbr\u003eBipolar Disorder\u003cbr\u003eMisogyny\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eStigma\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eRacism\u003cbr\u003eAllergies/Asthma", "value": 26}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Interoception Issues", "label": "Interoception Issues", "shape": "dot", "title": "Interoception Issues Neighbors:\u003cbr\u003eMasking\u003cbr\u003eAssimilation\u003cbr\u003eMeltdown\u003cbr\u003eAlexithymia\u003cbr\u003eBurn(out)\u003cbr\u003eIrritability\u003cbr\u003eShutdown\u003cbr\u003eCompensation\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eMisogyny\u003cbr\u003eGaslighting\u003cbr\u003eFatigue\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eRacism", "value": 21}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Allergies/Asthma", "label": "Allergies/Asthma", "shape": "dot", "size": 10.0, "title": "Allergies/Asthma Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eToxic Stress\u003cbr\u003eBrain Fog\u003cbr\u003eBurn(out)\u003cbr\u003eIrritability\u003cbr\u003eShutdown\u003cbr\u003eWorking Memory Issues\u003cbr\u003eDifficulty Concentrating\u003cbr\u003eMeltdown\u003cbr\u003eFatigue\u003cbr\u003eDysregulation\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eInactivity\u003cbr\u003eSkin Problems\u003cbr\u003eDepression", "value": 15}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Brain Fog", "label": "Brain Fog", "shape": "dot", "title": "Brain Fog Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eChronic Insomnia\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eAllergies/Asthma", "value": 6}, {"color": "red", "font": {"color": "white"}, "id": "Burn(out)", "label": "Burn(out)", "shape": "dot", "title": "Burn(out) Neighbors:\u003cbr\u003eMasking\u003cbr\u003eAssimilation\u003cbr\u003eMeltdown\u003cbr\u003eInteroception Issues\u003cbr\u003eShutdown\u003cbr\u003eInactivity\u003cbr\u003eCompensation\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eHeadache/Migraine\u003cbr\u003eMisogyny\u003cbr\u003eGaslighting\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eRacism\u003cbr\u003eAllergies/Asthma", "value": 21}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Depression", "label": "Depression", "shape": "dot", "title": "Depression Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eSI-\u003eMD\u003cbr\u003eMeltdown\u003cbr\u003eChronic Infection\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eChildhood Toxic Stress\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eIrritability\u003cbr\u003eShutdown\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eInactivity\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eDeath of a Loved One\u003cbr\u003eHeadache/Migraine\u003cbr\u003eBipolar Disorder\u003cbr\u003eMisogyny\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eGaslighting\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eRacism\u003cbr\u003eAllergies/Asthma", "value": 31}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Difficulty Concentrating", "label": "Difficulty Concentrating", "shape": "dot", "title": "Difficulty Concentrating Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eToxic Stress\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAllergies/Asthma", "value": 8}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Dysregulation", "label": "Dysregulation", "shape": "dot", "title": "Dysregulation Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eSI-\u003eMD\u003cbr\u003eWorking Memory Issues\u003cbr\u003eMeltdown\u003cbr\u003eChronic Infection\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eAlexithymia\u003cbr\u003eChildhood Toxic Stress\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eIrritability\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eInactivity\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eHeadache/Migraine\u003cbr\u003eBipolar Disorder\u003cbr\u003eMisogyny\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eStigma\u003cbr\u003eGaslighting\u003cbr\u003eDifficulty Concentrating\u003cbr\u003eFatigue\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eExecutive Function\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eRacism\u003cbr\u003eAllergies/Asthma", "value": 35}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Fatigue", "label": "Fatigue", "shape": "dot", "title": "Fatigue Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eInteroception Issues\u003cbr\u003eToxic Stress\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAllergies/Asthma", "value": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Headache/Migraine", "label": "Headache/Migraine", "shape": "dot", "title": "Headache/Migraine Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eBurn(out)\u003cbr\u003eIrritability\u003cbr\u003eShutdown\u003cbr\u003eChronic Insomnia\u003cbr\u003eWorking Memory Issues\u003cbr\u003eDifficulty Concentrating\u003cbr\u003eMeltdown\u003cbr\u003eFatigue\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAllergies/Asthma", "value": 18}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Irritability", "label": "Irritability", "shape": "dot", "title": "Irritability Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eInteroception Issues\u003cbr\u003eToxic Stress\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAllergies/Asthma", "value": 9}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Isolation/Loneliness", "label": "Isolation/Loneliness", "shape": "dot", "title": "Isolation/Loneliness Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eStigma\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eDysregulation\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eInactivity\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003eDeath of a Loved One\u003cbr\u003eAllergies/Asthma", "value": 11}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Meltdown", "label": "Meltdown", "shape": "dot", "title": "Meltdown Neighbors:\u003cbr\u003eMasking\u003cbr\u003eAssimilation\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eShutdown\u003cbr\u003eCompensation\u003cbr\u003eInactivity\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eHeadache/Migraine\u003cbr\u003eMisogyny\u003cbr\u003eGaslighting\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eRacism\u003cbr\u003eAllergies/Asthma", "value": 21}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Shutdown", "label": "Shutdown", "shape": "dot", "title": "Shutdown Neighbors:\u003cbr\u003eMasking\u003cbr\u003eAssimilation\u003cbr\u003eMeltdown\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eCompensation\u003cbr\u003eInactivity\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eHeadache/Migraine\u003cbr\u003eMisogyny\u003cbr\u003eGaslighting\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eRacism\u003cbr\u003eAllergies/Asthma", "value": 20}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Skin Problems", "label": "Skin Problems", "shape": "dot", "title": "Skin Problems Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eAllergies/Asthma", "value": 4}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Working Memory Issues", "label": "Working Memory Issues", "shape": "dot", "title": "Working Memory Issues Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eToxic Stress\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAllergies/Asthma", "value": 8}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Anxiety + Social Anxiety", "label": "Anxiety + Social Anxiety", "shape": "dot", "size": 10.0, "title": "Anxiety + Social Anxiety Neighbors:\u003cbr\u003eBipolar Disorder\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eMisogyny\u003cbr\u003eBullying/Shunning\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eChronic Insomnia\u003cbr\u003eGaslighting\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eSubstance Abuse\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eRacism\u003cbr\u003eSensory Dysregulation\u003cbr\u003eDeath of a Loved One\u003cbr\u003ePTSD/C-PTSD", "value": 15}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sensory Dysregulation", "label": "Sensory Dysregulation", "shape": "dot", "title": "Sensory Dysregulation Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eMasking\u003cbr\u003eSI-\u003eMD\u003cbr\u003eWorking Memory Issues\u003cbr\u003eAssimilation\u003cbr\u003eMeltdown\u003cbr\u003eChronic Infection\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eAlexithymia\u003cbr\u003eAccident risk\u003cbr\u003eChildhood Toxic Stress\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eIrritability\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eCompensation\u003cbr\u003eInactivity\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eHeadache/Migraine\u003cbr\u003eMisogyny\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eStigma\u003cbr\u003eGaslighting\u003cbr\u003eDifficulty Concentrating\u003cbr\u003eFatigue\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eCold/Flu/Infection\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eExecutive Function\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eRacism", "value": 38}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Substance Abuse", "label": "Substance Abuse", "shape": "dot", "title": "Substance Abuse Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eBipolar Disorder\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eMisogyny\u003cbr\u003eBullying/Shunning\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eChronic Insomnia\u003cbr\u003eGaslighting\u003cbr\u003eStigma\u003cbr\u003eDysregulation\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eRacism\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD", "value": 18}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Assault/Abuse/SA", "label": "Assault/Abuse/SA", "shape": "dot", "size": 20.0, "title": "Assault/Abuse/SA Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eToxic Stress\u003cbr\u003eBurn(out)\u003cbr\u003eSI-\u003eMD\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eStigma\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eMeltdown\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAvoidance\u003cbr\u003eAlexithymia\u003cbr\u003ePTSD/C-PTSD", "value": 18}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Avoidance", "label": "Avoidance", "shape": "dot", "title": "Avoidance Neighbors:\u003cbr\u003eMisogyny\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eGaslighting\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eRacism\u003cbr\u003ePTSD/C-PTSD", "value": 7}, {"color": "red", "font": {"color": "white"}, "id": "Homelessness", "label": "Homelessness", "shape": "dot", "title": "Homelessness Neighbors:\u003cbr\u003eBipolar Disorder\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eMisogyny\u003cbr\u003eBullying/Shunning\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eChronic Insomnia\u003cbr\u003eGaslighting\u003cbr\u003eSubstance Abuse\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eRacism\u003cbr\u003ePTSD/C-PTSD", "value": 11}, {"color": "red", "font": {"color": "white"}, "id": "SI-\u003eMD", "label": "SI-\u003eMD", "shape": "dot", "title": "SI-\u003eMD Neighbors:\u003cbr\u003eBipolar Disorder\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eMisogyny\u003cbr\u003eBullying/Shunning\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eGaslighting\u003cbr\u003eDysregulation\u003cbr\u003eDepression\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eRacism\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD", "value": 12}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Stigma", "label": "Stigma", "shape": "dot", "title": "Stigma Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eMisogyny\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eGaslighting\u003cbr\u003eDysregulation\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eInactivity\u003cbr\u003eSubstance Abuse\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eRacism\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD", "value": 14}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Toxic Stress", "label": "Toxic Stress", "shape": "dot", "title": "Toxic Stress Neighbors:\u003cbr\u003eWorking Memory Issues\u003cbr\u003eChronic Infection\u003cbr\u003eMuscle Weakness\u003cbr\u003eSusceptible to viral infections\u003cbr\u003eChildhood Toxic Stress\u003cbr\u003eIrritability\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eInactivity\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eHeadache/Migraine\u003cbr\u003eBipolar Disorder\u003cbr\u003eMisogyny\u003cbr\u003eBrain Fog\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eStigma\u003cbr\u003eGaslighting\u003cbr\u003eDifficulty Concentrating\u003cbr\u003eWeight changes\u003cbr\u003eFatigue\u003cbr\u003eIncreased risk of diabetes\u003cbr\u003eDepression\u003cbr\u003eIncreased time to recover from illness\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eBullying/Shunning\u003cbr\u003eChronic Insomnia\u003cbr\u003eDysregulation\u003cbr\u003eDigestive Problems\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eincreased risk of ulcerative colitis\u003cbr\u003eSkin Problems\u003cbr\u003eRacism\u003cbr\u003eAllergies/Asthma", "value": 34}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Trouble Maintaining Relationships", "label": "Trouble Maintaining Relationships", "shape": "dot", "title": "Trouble Maintaining Relationships Neighbors:\u003cbr\u003eChildhood Toxic Stress\u003cbr\u003eBipolar Disorder\u003cbr\u003eAssault/Abuse/SA\u003cbr\u003eToxic Stress\u003cbr\u003eBullying/Shunning\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eMisogyny\u003cbr\u003eStigma\u003cbr\u003eGaslighting\u003cbr\u003eDysregulation\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eDepression\u003cbr\u003eLGBTQIA+ Bigotry\u003cbr\u003eRacism\u003cbr\u003eSensory Dysregulation\u003cbr\u003eDeath of a Loved One\u003cbr\u003ePTSD/C-PTSD", "value": 17}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Assimilation", "label": "Assimilation", "shape": "dot", "size": 20.0, "title": "Assimilation Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eShutdown\u003cbr\u003eMeltdown\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAlexithymia\u003cbr\u003ePTSD/C-PTSD", "value": 7}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Autoimmune Diseases", "label": "Autoimmune Diseases", "shape": "dot", "size": 10.0, "title": "Autoimmune Diseases Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eBrain Fog\u003cbr\u003eRecurring fever\u003cbr\u003eFibromyalgia\u003cbr\u003eWeight changes\u003cbr\u003eDifficulty Concentrating\u003cbr\u003eWorking Memory Issues\u003cbr\u003eFatigue\u003cbr\u003eSkin Problems\u003cbr\u003eDigestive Problems\u003cbr\u003eInactivity\u003cbr\u003eDepression\u003cbr\u003eSwollen glands\u003cbr\u003eDry skin/sensitivity to cold", "value": 14}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Digestive Problems", "label": "Digestive Problems", "shape": "dot", "title": "Digestive Problems Neighbors:\u003cbr\u003eChronic Insomnia\u003cbr\u003eToxic Stress\u003cbr\u003eAutoimmune Diseases", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Dry skin/sensitivity to cold", "label": "Dry skin/sensitivity to cold", "shape": "dot", "title": "Dry skin/sensitivity to cold Neighbors:\u003cbr\u003eAutoimmune Diseases", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Fibromyalgia", "label": "Fibromyalgia", "shape": "dot", "title": "Fibromyalgia Neighbors:\u003cbr\u003eAutoimmune Diseases", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Recurring fever", "label": "Recurring fever", "shape": "dot", "title": "Recurring fever Neighbors:\u003cbr\u003eAutoimmune Diseases", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Swollen glands", "label": "Swollen glands", "shape": "dot", "title": "Swollen glands Neighbors:\u003cbr\u003eAutoimmune Diseases\u003cbr\u003eCold/Flu/Infection", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Weight changes", "label": "Weight changes", "shape": "dot", "title": "Weight changes Neighbors:\u003cbr\u003eBipolar Disorder\u003cbr\u003eAutoimmune Diseases\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eToxic Stress", "value": 4}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Bipolar Disorder", "label": "Bipolar Disorder", "shape": "dot", "size": 2.0, "title": "Bipolar Disorder Neighbors:\u003cbr\u003eChildhood Toxic Stress\u003cbr\u003eToxic Stress\u003cbr\u003eSI-\u003eMD\u003cbr\u003eHeart Disease\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eWeight changes\u003cbr\u003eCancer\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse", "value": 14}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Cancer", "label": "Cancer", "shape": "dot", "title": "Cancer Neighbors:\u003cbr\u003eChronic Infection\u003cbr\u003eBipolar Disorder\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eSusceptible to viral infections", "value": 4}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Heart Disease", "label": "Heart Disease", "shape": "dot", "title": "Heart Disease Neighbors:\u003cbr\u003eChronic Insomnia\u003cbr\u003eBipolar Disorder\u003cbr\u003ePsychosis/Schizophrenia", "value": 3}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Bullying/Shunning", "label": "Bullying/Shunning", "shape": "dot", "size": 6.0, "title": "Bullying/Shunning Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eToxic Stress\u003cbr\u003eBurn(out)\u003cbr\u003eSI-\u003eMD\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eStigma\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eMeltdown\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAvoidance\u003cbr\u003eAlexithymia\u003cbr\u003ePTSD/C-PTSD", "value": 18}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Childhood Toxic Stress", "label": "Childhood Toxic Stress", "shape": "dot", "size": 6.0, "title": "Childhood Toxic Stress Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eBipolar Disorder\u003cbr\u003ePsychosis/Schizophrenia\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eDysregulation\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD", "value": 8}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Psychosis/Schizophrenia", "label": "Psychosis/Schizophrenia", "shape": "dot", "title": "Psychosis/Schizophrenia Neighbors:\u003cbr\u003eChildhood Toxic Stress\u003cbr\u003eBipolar Disorder\u003cbr\u003eToxic Stress\u003cbr\u003eSI-\u003eMD\u003cbr\u003eHeart Disease\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eWeight changes\u003cbr\u003eCancer\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD", "value": 16}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Chronic Infection", "label": "Chronic Infection", "shape": "dot", "size": 1.0, "title": "Chronic Infection Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eCancer\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation", "value": 6}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Chronic Insomnia", "label": "Chronic Insomnia", "shape": "dot", "size": 4.0, "title": "Chronic Insomnia Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eWorking Memory Issues\u003cbr\u003eMeltdown\u003cbr\u003eHomelessness\u003cbr\u003eHigh Blood Pressure\u003cbr\u003eAccident risk\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eHeart Disease\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eIrritability\u003cbr\u003eShutdown\u003cbr\u003eInactivity\u003cbr\u003eHeadache/Migraine\u003cbr\u003eBrain Fog\u003cbr\u003eDifficulty Concentrating\u003cbr\u003eFatigue\u003cbr\u003eFibromyalgia/AMPS\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003ePTSD/C-PTSD\u003cbr\u003ePoor School/Job Performance\u003cbr\u003eDysregulation\u003cbr\u003eDigestive Problems", "value": 25}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Accident risk", "label": "Accident risk", "shape": "dot", "title": "Accident risk Neighbors:\u003cbr\u003eChronic Insomnia\u003cbr\u003eSensory Dysregulation", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "High Blood Pressure", "label": "High Blood Pressure", "shape": "dot", "title": "High Blood Pressure Neighbors:\u003cbr\u003eChronic Insomnia", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Poor School/Job Performance", "label": "Poor School/Job Performance", "shape": "dot", "title": "Poor School/Job Performance Neighbors:\u003cbr\u003eChronic Insomnia", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Cold/Flu/Infection", "label": "Cold/Flu/Infection", "shape": "dot", "size": 10.0, "title": "Cold/Flu/Infection Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eBrain Fog\u003cbr\u003eBurn(out)\u003cbr\u003eIrritability\u003cbr\u003eShutdown\u003cbr\u003eWorking Memory Issues\u003cbr\u003eDifficulty Concentrating\u003cbr\u003eMeltdown\u003cbr\u003eFatigue\u003cbr\u003eDysregulation\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eInactivity\u003cbr\u003eSkin Problems\u003cbr\u003eDepression\u003cbr\u003eSensory Dysregulation\u003cbr\u003eSwollen glands", "value": 16}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Compensation", "label": "Compensation", "shape": "dot", "size": 15.0, "title": "Compensation Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eShutdown\u003cbr\u003eMeltdown\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAlexithymia", "value": 6}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Death of a Loved One", "label": "Death of a Loved One", "shape": "dot", "size": 10.0, "title": "Death of a Loved One Neighbors:\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eDepression\u003cbr\u003ePTSD/C-PTSD", "value": 5}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Fibromyalgia/AMPS", "label": "Fibromyalgia/AMPS", "shape": "dot", "title": "Fibromyalgia/AMPS Neighbors:\u003cbr\u003eHeadache/Migraine\u003cbr\u003eInteroception Issues\u003cbr\u003eBrain Fog\u003cbr\u003eChronic Insomnia\u003cbr\u003eFatigue\u003cbr\u003eDysregulation\u003cbr\u003eIsolation/Loneliness\u003cbr\u003eInactivity\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAlondynia", "value": 12}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Executive Function", "label": "Executive Function", "shape": "dot", "title": "Executive Function Neighbors:\u003cbr\u003eDysregulation\u003cbr\u003eSensory Dysregulation", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Alondynia", "label": "Alondynia", "shape": "dot", "title": "Alondynia Neighbors:\u003cbr\u003eFibromyalgia/AMPS", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Gaslighting", "label": "Gaslighting", "shape": "dot", "size": 8.0, "title": "Gaslighting Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eToxic Stress\u003cbr\u003eBurn(out)\u003cbr\u003eSI-\u003eMD\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eStigma\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eMeltdown\u003cbr\u003eDysregulation\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAvoidance\u003cbr\u003eAlexithymia\u003cbr\u003ePTSD/C-PTSD", "value": 17}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Masking", "label": "Masking", "shape": "dot", "size": 10.0, "title": "Masking Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eBurn(out)\u003cbr\u003eShutdown\u003cbr\u003eMeltdown\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAlexithymia", "value": 6}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Natural Disaster", "label": "Natural Disaster", "shape": "dot", "size": NaN, "title": "Natural Disaster Neighbors:\u003cbr\u003ePTSD/C-PTSD", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Serious Medical Condition", "label": "Serious Medical Condition", "shape": "dot", "size": 10.0, "title": "Serious Medical Condition Neighbors:\u003cbr\u003ePTSD/C-PTSD", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Susceptible to viral infections", "label": "Susceptible to viral infections", "shape": "dot", "size": 2.0, "title": "Susceptible to viral infections Neighbors:\u003cbr\u003eToxic Stress\u003cbr\u003eCancer", "value": 2}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Increased risk of diabetes", "label": "Increased risk of diabetes", "shape": "dot", "title": "Increased risk of diabetes Neighbors:\u003cbr\u003eToxic Stress", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "increased risk of ulcerative colitis", "label": "increased risk of ulcerative colitis", "shape": "dot", "title": "increased risk of ulcerative colitis Neighbors:\u003cbr\u003eToxic Stress", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Increased time to recover from illness", "label": "Increased time to recover from illness", "shape": "dot", "title": "Increased time to recover from illness Neighbors:\u003cbr\u003eToxic Stress", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Muscle Weakness", "label": "Muscle Weakness", "shape": "dot", "title": "Muscle Weakness Neighbors:\u003cbr\u003eToxic Stress", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "War", "label": "War", "shape": "dot", "size": 20.0, "title": "War Neighbors:\u003cbr\u003ePTSD/C-PTSD", "value": 1}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Racism", "label": "Racism", "shape": "dot", "size": 20.0, "title": "Racism Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eToxic Stress\u003cbr\u003eBurn(out)\u003cbr\u003eSI-\u003eMD\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eStigma\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eMeltdown\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAvoidance\u003cbr\u003eAlexithymia\u003cbr\u003ePTSD/C-PTSD", "value": 18}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "LGBTQIA+ Bigotry", "label": "LGBTQIA+ Bigotry", "shape": "dot", "size": 20.0, "title": "LGBTQIA+ Bigotry Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eToxic Stress\u003cbr\u003eBurn(out)\u003cbr\u003eSI-\u003eMD\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eStigma\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eMeltdown\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAvoidance\u003cbr\u003eAlexithymia\u003cbr\u003ePTSD/C-PTSD", "value": 18}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Misogyny", "label": "Misogyny", "shape": "dot", "size": 20.0, "title": "Misogyny Neighbors:\u003cbr\u003eInteroception Issues\u003cbr\u003eToxic Stress\u003cbr\u003eBurn(out)\u003cbr\u003eSI-\u003eMD\u003cbr\u003eAnxiety + Social Anxiety\u003cbr\u003eShutdown\u003cbr\u003eStigma\u003cbr\u003eTrouble Maintaining Relationships\u003cbr\u003eMeltdown\u003cbr\u003eDysregulation\u003cbr\u003eInactivity\u003cbr\u003eHomelessness\u003cbr\u003eDepression\u003cbr\u003eSubstance Abuse\u003cbr\u003eSensory Dysregulation\u003cbr\u003eAvoidance\u003cbr\u003eAlexithymia\u003cbr\u003ePTSD/C-PTSD", "value": 18}]);
+                  edges = new vis.DataSet([{"color": "#97c2fc", "from": "Accident", "to": "PTSD/C-PTSD", "value": 20.0}, {"color": "#97c2fc", "from": "Alexithymia", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Alexithymia", "to": "Interoception Issues", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Brain Fog", "value": 10.0}, {"color": "red", "from": "Allergies/Asthma", "to": "Burn(out)", "value": 5.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Depression", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Difficulty Concentrating", "value": 5.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Fatigue", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Headache/Migraine", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Irritability", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Isolation/Loneliness", "value": 15.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Meltdown", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Shutdown", "value": 10.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Skin Problems", "value": 20.0}, {"color": "#97c2fc", "from": "Allergies/Asthma", "to": "Working Memory Issues", "value": 15.0}, {"color": "#97c2fc", "from": "Anxiety + Social Anxiety", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Anxiety + Social Anxiety", "to": "PTSD/C-PTSD", "value": 10.0}, {"color": "#97c2fc", "from": "Anxiety + Social Anxiety", "to": "Sensory Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Anxiety + Social Anxiety", "to": "Substance Abuse", "value": 10.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Alexithymia", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Anxiety + Social Anxiety", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Avoidance", "value": 20.0}, {"color": "red", "from": "Assault/Abuse/SA", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Depression", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Dysregulation", "value": 20.0}, {"color": "red", "from": "Assault/Abuse/SA", "to": "Homelessness", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Inactivity", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Interoception Issues", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "PTSD/C-PTSD", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Sensory Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Shutdown", "value": 20.0}, {"color": "red", "from": "Assault/Abuse/SA", "to": "SI-\u003eMD", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Stigma", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Substance Abuse", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Toxic Stress", "value": 20.0}, {"color": "#97c2fc", "from": "Assault/Abuse/SA", "to": "Trouble Maintaining Relationships", "value": 20.0}, {"color": "#97c2fc", "from": "Assimilation", "to": "Alexithymia", "value": 20.0}, {"color": "red", "from": "Assimilation", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Assimilation", "to": "Interoception Issues", "value": 20.0}, {"color": "#97c2fc", "from": "Assimilation", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Assimilation", "to": "PTSD/C-PTSD", "value": 20.0}, {"color": "#97c2fc", "from": "Assimilation", "to": "Sensory Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Assimilation", "to": "Shutdown", "value": 20.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Brain Fog", "value": 10.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Depression", "value": 2.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Difficulty Concentrating", "value": 10.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Digestive Problems", "value": 2.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Dry skin/sensitivity to cold", "value": 2.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Fatigue", "value": 10.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Fibromyalgia", "value": 2.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Recurring fever", "value": 2.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Skin Problems", "value": 20.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Swollen glands", "value": 20.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Weight changes", "value": 2.0}, {"color": "#97c2fc", "from": "Autoimmune Diseases", "to": "Working Memory Issues", "value": 2.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Anxiety + Social Anxiety", "value": 2.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Cancer", "value": 2.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Depression", "value": 20.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Heart Disease", "value": 2.0}, {"color": "red", "from": "Bipolar Disorder", "to": "Homelessness", "value": 2.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Inactivity", "value": 10.0}, {"color": "red", "from": "Bipolar Disorder", "to": "SI-\u003eMD", "value": 2.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Substance Abuse", "value": 2.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Trouble Maintaining Relationships", "value": 10.0}, {"color": "#97c2fc", "from": "Bipolar Disorder", "to": "Weight changes", "value": 2.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Alexithymia", "value": 6.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Anxiety + Social Anxiety", "value": 6.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Avoidance", "value": 6.0}, {"color": "red", "from": "Bullying/Shunning", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Depression", "value": 15.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Dysregulation", "value": 15.0}, {"color": "red", "from": "Bullying/Shunning", "to": "Homelessness", "value": 6.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Inactivity", "value": 8.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Interoception Issues", "value": 6.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "PTSD/C-PTSD", "value": NaN}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Sensory Dysregulation", "value": 30.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Shutdown", "value": 20.0}, {"color": "red", "from": "Bullying/Shunning", "to": "SI-\u003eMD", "value": 6.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Stigma", "value": 10.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Substance Abuse", "value": 6.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Toxic Stress", "value": 8.0}, {"color": "#97c2fc", "from": "Bullying/Shunning", "to": "Trouble Maintaining Relationships", "value": 6.0}, {"color": "#97c2fc", "from": "Burn(out)", "to": "Inactivity", "value": 30.0}, {"color": "#97c2fc", "from": "Childhood Toxic Stress", "to": "Bipolar Disorder", "value": 6.0}, {"color": "#97c2fc", "from": "Childhood Toxic Stress", "to": "Depression", "value": 20.0}, {"color": "#97c2fc", "from": "Childhood Toxic Stress", "to": "Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Childhood Toxic Stress", "to": "Psychosis/Schizophrenia", "value": 6.0}, {"color": "#97c2fc", "from": "Childhood Toxic Stress", "to": "PTSD/C-PTSD", "value": 6.0}, {"color": "#97c2fc", "from": "Childhood Toxic Stress", "to": "Sensory Dysregulation", "value": 6.0}, {"color": "#97c2fc", "from": "Childhood Toxic Stress", "to": "Toxic Stress", "value": 8.0}, {"color": "#97c2fc", "from": "Childhood Toxic Stress", "to": "Trouble Maintaining Relationships", "value": 6.0}, {"color": "#97c2fc", "from": "Chronic Infection", "to": "Cancer", "value": 1.0}, {"color": "#97c2fc", "from": "Chronic Infection", "to": "Depression", "value": 15.0}, {"color": "#97c2fc", "from": "Chronic Infection", "to": "Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Infection", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Chronic Infection", "to": "Sensory Dysregulation", "value": 15.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Accident risk", "value": 4.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Anxiety + Social Anxiety", "value": 4.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Brain Fog", "value": 20.0}, {"color": "red", "from": "Chronic Insomnia", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Depression", "value": 15.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Difficulty Concentrating", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Digestive Problems", "value": 4.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Fatigue", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Headache/Migraine", "value": 10.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Heart Disease", "value": 4.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "High Blood Pressure", "value": 4.0}, {"color": "red", "from": "Chronic Insomnia", "to": "Homelessness", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Irritability", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Poor School/Job Performance", "value": 4.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Sensory Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Shutdown", "value": 20.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Substance Abuse", "value": 4.0}, {"color": "#97c2fc", "from": "Chronic Insomnia", "to": "Working Memory Issues", "value": 4.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Brain Fog", "value": 10.0}, {"color": "red", "from": "Cold/Flu/Infection", "to": "Burn(out)", "value": 5.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Depression", "value": 10.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Difficulty Concentrating", "value": 5.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Fatigue", "value": 10.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Headache/Migraine", "value": 10.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Irritability", "value": 5.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Isolation/Loneliness", "value": 15.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Meltdown", "value": 10.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Sensory Dysregulation", "value": 15.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Shutdown", "value": 10.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Skin Problems", "value": 10.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Swollen glands", "value": 20.0}, {"color": "#97c2fc", "from": "Cold/Flu/Infection", "to": "Working Memory Issues", "value": 15.0}, {"color": "#97c2fc", "from": "Compensation", "to": "Alexithymia", "value": 15.0}, {"color": "red", "from": "Compensation", "to": "Burn(out)", "value": 15.0}, {"color": "#97c2fc", "from": "Compensation", "to": "Interoception Issues", "value": 15.0}, {"color": "#97c2fc", "from": "Compensation", "to": "Meltdown", "value": 15.0}, {"color": "#97c2fc", "from": "Compensation", "to": "Sensory Dysregulation", "value": 15.0}, {"color": "#97c2fc", "from": "Compensation", "to": "Shutdown", "value": 15.0}, {"color": "#97c2fc", "from": "Death of a Loved One", "to": "Anxiety + Social Anxiety", "value": 10.0}, {"color": "#97c2fc", "from": "Death of a Loved One", "to": "Depression", "value": 10.0}, {"color": "#97c2fc", "from": "Death of a Loved One", "to": "Isolation/Loneliness", "value": 10.0}, {"color": "#97c2fc", "from": "Death of a Loved One", "to": "PTSD/C-PTSD", "value": 10.0}, {"color": "#97c2fc", "from": "Death of a Loved One", "to": "Trouble Maintaining Relationships", "value": 10.0}, {"color": "red", "from": "Depression", "to": "Burn(out)", "value": 6.0}, {"color": "#97c2fc", "from": "Depression", "to": "Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Depression", "to": "Fibromyalgia/AMPS", "value": 10.0}, {"color": "#97c2fc", "from": "Depression", "to": "Headache/Migraine", "value": 10.0}, {"color": "#97c2fc", "from": "Depression", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Depression", "to": "Interoception Issues", "value": 6.0}, {"color": "#97c2fc", "from": "Depression", "to": "Irritability", "value": 15.0}, {"color": "#97c2fc", "from": "Depression", "to": "Isolation/Loneliness", "value": 6.0}, {"color": "#97c2fc", "from": "Depression", "to": "Meltdown", "value": 10.0}, {"color": "#97c2fc", "from": "Depression", "to": "PTSD/C-PTSD", "value": NaN}, {"color": "#97c2fc", "from": "Depression", "to": "Sensory Dysregulation", "value": 6.0}, {"color": "#97c2fc", "from": "Depression", "to": "Shutdown", "value": 10.0}, {"color": "red", "from": "Depression", "to": "SI-\u003eMD", "value": 6.0}, {"color": "#97c2fc", "from": "Depression", "to": "Substance Abuse", "value": 10.0}, {"color": "#97c2fc", "from": "Depression", "to": "Trouble Maintaining Relationships", "value": 6.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Alexithymia", "value": 10.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Anxiety + Social Anxiety", "value": 12.0}, {"color": "red", "from": "Dysregulation", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Difficulty Concentrating", "value": 20.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Executive Function", "value": 10.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Fatigue", "value": 20.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Interoception Issues", "value": 10.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Irritability", "value": 15.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Isolation/Loneliness", "value": 15.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Meltdown", "value": 10.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Sensory Dysregulation", "value": 30.0}, {"color": "red", "from": "Dysregulation", "to": "SI-\u003eMD", "value": 10.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Stigma", "value": 10.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Substance Abuse", "value": 10.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Toxic Stress", "value": 8.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Trouble Maintaining Relationships", "value": 6.0}, {"color": "#97c2fc", "from": "Dysregulation", "to": "Working Memory Issues", "value": 20.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Alondynia", "value": 10.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Brain Fog", "value": 10.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Chronic Insomnia", "value": 10.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Fatigue", "value": 20.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Headache/Migraine", "value": 10.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Inactivity", "value": 15.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Isolation/Loneliness", "value": 10.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Sensory Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Fibromyalgia/AMPS", "to": "Substance Abuse", "value": 15.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Alexithymia", "value": 8.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Anxiety + Social Anxiety", "value": 8.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Avoidance", "value": 8.0}, {"color": "red", "from": "Gaslighting", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Depression", "value": 10.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Dysregulation", "value": 15.0}, {"color": "red", "from": "Gaslighting", "to": "Homelessness", "value": 8.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Interoception Issues", "value": 8.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "PTSD/C-PTSD", "value": 20.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Sensory Dysregulation", "value": 50.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Shutdown", "value": 20.0}, {"color": "red", "from": "Gaslighting", "to": "SI-\u003eMD", "value": 8.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Stigma", "value": 10.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Substance Abuse", "value": 8.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Toxic Stress", "value": 8.0}, {"color": "#97c2fc", "from": "Gaslighting", "to": "Trouble Maintaining Relationships", "value": 6.0}, {"color": "red", "from": "Headache/Migraine", "to": "Burn(out)", "value": 5.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Difficulty Concentrating", "value": 20.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Fatigue", "value": 20.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Irritability", "value": 20.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Isolation/Loneliness", "value": 20.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Sensory Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Shutdown", "value": 20.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Substance Abuse", "value": 15.0}, {"color": "#97c2fc", "from": "Headache/Migraine", "to": "Working Memory Issues", "value": 20.0}, {"color": "red", "from": "Interoception Issues", "to": "Burn(out)", "value": 10.0}, {"color": "#97c2fc", "from": "Interoception Issues", "to": "Chronic Insomnia", "value": 10.0}, {"color": "#97c2fc", "from": "Interoception Issues", "to": "Fatigue", "value": 10.0}, {"color": "#97c2fc", "from": "Interoception Issues", "to": "Fibromyalgia/AMPS", "value": 10.0}, {"color": "#97c2fc", "from": "Interoception Issues", "to": "Irritability", "value": 10.0}, {"color": "#97c2fc", "from": "Interoception Issues", "to": "Meltdown", "value": 10.0}, {"color": "#97c2fc", "from": "Interoception Issues", "to": "Sensory Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Interoception Issues", "to": "Shutdown", "value": 10.0}, {"color": "#97c2fc", "from": "Isolation/Loneliness", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Isolation/Loneliness", "to": "Sensory Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Isolation/Loneliness", "to": "Stigma", "value": 10.0}, {"color": "#97c2fc", "from": "Masking", "to": "Alexithymia", "value": 10.0}, {"color": "red", "from": "Masking", "to": "Burn(out)", "value": 10.0}, {"color": "#97c2fc", "from": "Masking", "to": "Interoception Issues", "value": 10.0}, {"color": "#97c2fc", "from": "Masking", "to": "Meltdown", "value": 10.0}, {"color": "#97c2fc", "from": "Masking", "to": "Sensory Dysregulation", "value": 10.0}, {"color": "#97c2fc", "from": "Masking", "to": "Shutdown", "value": 10.0}, {"color": "red", "from": "Meltdown", "to": "Burn(out)", "value": 5.0}, {"color": "#97c2fc", "from": "Meltdown", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Meltdown", "to": "Shutdown", "value": 15.0}, {"color": "#97c2fc", "from": "Natural Disaster", "to": "PTSD/C-PTSD", "value": NaN}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Anxiety + Social Anxiety", "value": 20.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Bipolar Disorder", "value": 2.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Cancer", "value": 2.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Depression", "value": 2.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Dysregulation", "value": 2.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Heart Disease", "value": 2.0}, {"color": "red", "from": "Psychosis/Schizophrenia", "to": "Homelessness", "value": 20.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "PTSD/C-PTSD", "value": NaN}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Sensory Dysregulation", "value": 2.0}, {"color": "red", "from": "Psychosis/Schizophrenia", "to": "SI-\u003eMD", "value": 2.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Substance Abuse", "value": 15.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Trouble Maintaining Relationships", "value": 15.0}, {"color": "#97c2fc", "from": "Psychosis/Schizophrenia", "to": "Weight changes", "value": 2.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Alexithymia", "value": 6.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Avoidance", "value": 6.0}, {"color": "red", "from": "PTSD/C-PTSD", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Chronic Insomnia", "value": 15.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Dysregulation", "value": 15.0}, {"color": "red", "from": "PTSD/C-PTSD", "to": "Homelessness", "value": 6.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Inactivity", "value": 8.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Interoception Issues", "value": 6.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Sensory Dysregulation", "value": 30.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Shutdown", "value": 20.0}, {"color": "red", "from": "PTSD/C-PTSD", "to": "SI-\u003eMD", "value": 6.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Stigma", "value": 10.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Substance Abuse", "value": 6.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Toxic Stress", "value": 8.0}, {"color": "#97c2fc", "from": "PTSD/C-PTSD", "to": "Trouble Maintaining Relationships", "value": 6.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Accident risk", "value": 8.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Alexithymia", "value": 10.0}, {"color": "red", "from": "Sensory Dysregulation", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Difficulty Concentrating", "value": 20.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Executive Function", "value": 10.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Fatigue", "value": 20.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Irritability", "value": 15.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Shutdown", "value": 20.0}, {"color": "red", "from": "Sensory Dysregulation", "to": "SI-\u003eMD", "value": 10.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Stigma", "value": 10.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Substance Abuse", "value": 10.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Toxic Stress", "value": 8.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Trouble Maintaining Relationships", "value": 10.0}, {"color": "#97c2fc", "from": "Sensory Dysregulation", "to": "Working Memory Issues", "value": 20.0}, {"color": "#97c2fc", "from": "Serious Medical Condition", "to": "PTSD/C-PTSD", "value": 10.0}, {"color": "red", "from": "Shutdown", "to": "Burn(out)", "value": 10.0}, {"color": "#97c2fc", "from": "Shutdown", "to": "Inactivity", "value": 20.0}, {"color": "#97c2fc", "from": "Stigma", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Stigma", "to": "Substance Abuse", "value": 15.0}, {"color": "#97c2fc", "from": "Stigma", "to": "Toxic Stress", "value": 20.0}, {"color": "red", "from": "Substance Abuse", "to": "Homelessness", "value": 10.0}, {"color": "#97c2fc", "from": "Susceptible to viral infections", "to": "Cancer", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Allergies/Asthma", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Autoimmune Diseases", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Bipolar Disorder", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Brain Fog", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Chronic Infection", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Chronic Insomnia", "value": 10.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Depression", "value": 20.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Difficulty Concentrating", "value": 10.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Digestive Problems", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Fatigue", "value": 10.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Headache/Migraine", "value": 10.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Inactivity", "value": 10.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Increased risk of diabetes", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "increased risk of ulcerative colitis", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Increased time to recover from illness", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Irritability", "value": 10.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Muscle Weakness", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Psychosis/Schizophrenia", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Skin Problems", "value": 15.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Susceptible to viral infections", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Trouble Maintaining Relationships", "value": 6.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Weight changes", "value": 2.0}, {"color": "#97c2fc", "from": "Toxic Stress", "to": "Working Memory Issues", "value": 20.0}, {"color": "#97c2fc", "from": "Trouble Maintaining Relationships", "to": "Isolation/Loneliness", "value": 2.0}, {"color": "#97c2fc", "from": "Trouble Maintaining Relationships", "to": "Stigma", "value": 10.0}, {"color": "#97c2fc", "from": "War", "to": "PTSD/C-PTSD", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Alexithymia", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Anxiety + Social Anxiety", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Avoidance", "value": 20.0}, {"color": "red", "from": "Racism", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Depression", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Dysregulation", "value": 20.0}, {"color": "red", "from": "Racism", "to": "Homelessness", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Inactivity", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Interoception Issues", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "PTSD/C-PTSD", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Sensory Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Shutdown", "value": 20.0}, {"color": "red", "from": "Racism", "to": "SI-\u003eMD", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Stigma", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Substance Abuse", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Toxic Stress", "value": 20.0}, {"color": "#97c2fc", "from": "Racism", "to": "Trouble Maintaining Relationships", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Alexithymia", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Anxiety + Social Anxiety", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Avoidance", "value": 20.0}, {"color": "red", "from": "LGBTQIA+ Bigotry", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Depression", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Dysregulation", "value": 20.0}, {"color": "red", "from": "LGBTQIA+ Bigotry", "to": "Homelessness", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Inactivity", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Interoception Issues", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "PTSD/C-PTSD", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Sensory Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Shutdown", "value": 20.0}, {"color": "red", "from": "LGBTQIA+ Bigotry", "to": "SI-\u003eMD", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Stigma", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Substance Abuse", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Toxic Stress", "value": 20.0}, {"color": "#97c2fc", "from": "LGBTQIA+ Bigotry", "to": "Trouble Maintaining Relationships", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Alexithymia", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Anxiety + Social Anxiety", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Avoidance", "value": 20.0}, {"color": "red", "from": "Misogyny", "to": "Burn(out)", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Depression", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Dysregulation", "value": 20.0}, {"color": "red", "from": "Misogyny", "to": "Homelessness", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Inactivity", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Interoception Issues", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Meltdown", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "PTSD/C-PTSD", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Sensory Dysregulation", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Shutdown", "value": 20.0}, {"color": "red", "from": "Misogyny", "to": "SI-\u003eMD", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Stigma", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Substance Abuse", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Toxic Stress", "value": 20.0}, {"color": "#97c2fc", "from": "Misogyny", "to": "Trouble Maintaining Relationships", "value": 20.0}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "repulsion": {
+            "centralGravity": 0.2,
+            "damping": 0.09,
+            "nodeDistance": 100,
+            "springConstant": 0.05,
+            "springLength": 200
+        },
+        "solver": "repulsion",
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
