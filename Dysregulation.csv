@@ -1,0 +1,407 @@
+Source,Target,Weight
+Accident,PTSD/C-PTSD,20
+Alexithymia,Inactivity,10
+Alexithymia,Interoception Issues,10
+Allergies/Asthma,Brain Fog,10
+Allergies/Asthma,Burn(out),5
+Allergies/Asthma,Depression,10
+Allergies/Asthma,Difficulty Concentrating,5
+Allergies/Asthma,Dysregulation,10
+Allergies/Asthma,Fatigue,10
+Allergies/Asthma,Headache/Migraine,10
+Allergies/Asthma,Inactivity,10
+Allergies/Asthma,Irritability,10
+Allergies/Asthma,Isolation/Loneliness,15
+Allergies/Asthma,Meltdown,10
+Allergies/Asthma,Shutdown,10
+Allergies/Asthma,Skin Problems,20
+Allergies/Asthma,Working Memory Issues,15
+Anxiety + Social Anxiety,Inactivity,10
+Anxiety + Social Anxiety,PTSD/C-PTSD,10
+Anxiety + Social Anxiety,Sensory Dysregulation,10
+Anxiety + Social Anxiety,Substance Abuse,10
+Assault/Abuse/SA,Alexithymia,20
+Assault/Abuse/SA,Anxiety + Social Anxiety,20
+Assault/Abuse/SA,Avoidance,20
+Assault/Abuse/SA,Burn(out),20
+Assault/Abuse/SA,Depression,20
+Assault/Abuse/SA,Dysregulation,20
+Assault/Abuse/SA,Homelessness,20
+Assault/Abuse/SA,Inactivity,20
+Assault/Abuse/SA,Interoception Issues,20
+Assault/Abuse/SA,Meltdown,20
+Assault/Abuse/SA,PTSD/C-PTSD,20
+Assault/Abuse/SA,Sensory Dysregulation,20
+Assault/Abuse/SA,Shutdown,20
+Assault/Abuse/SA,SI->MD,20
+Assault/Abuse/SA,Stigma,20
+Assault/Abuse/SA,Substance Abuse,20
+Assault/Abuse/SA,Toxic Stress,20
+Assault/Abuse/SA,Trouble Maintaining Relationships,20
+Assimilation,Alexithymia,20
+Assimilation,Burn(out),20
+Assimilation,Interoception Issues,20
+Assimilation,Meltdown,20
+Assimilation,PTSD/C-PTSD,20
+Assimilation,Sensory Dysregulation,20
+Assimilation,Shutdown,20
+Autoimmune Diseases,Brain Fog,10
+Autoimmune Diseases,Depression,2
+Autoimmune Diseases,Difficulty Concentrating,10
+Autoimmune Diseases,Digestive Problems,2
+Autoimmune Diseases,Dry skin/sensitivity to cold,2
+Autoimmune Diseases,Fatigue,10
+Autoimmune Diseases,Fibromyalgia,2
+Autoimmune Diseases,Inactivity,10
+Autoimmune Diseases,Recurring fever,2
+Autoimmune Diseases,Skin Problems,20
+Autoimmune Diseases,Swollen glands,20
+Autoimmune Diseases,Weight changes,2
+Autoimmune Diseases,Working Memory Issues,2
+Bipolar Disorder,Anxiety + Social Anxiety,2
+Bipolar Disorder,Cancer,2
+Bipolar Disorder,Depression,20
+Bipolar Disorder,Dysregulation,20
+Bipolar Disorder,Heart Disease,2
+Bipolar Disorder,Homelessness,2
+Bipolar Disorder,Inactivity,10
+Bipolar Disorder,SI->MD,2
+Bipolar Disorder,Substance Abuse,2
+Bipolar Disorder,Trouble Maintaining Relationships,10
+Bipolar Disorder,Weight changes,2
+Bullying/Shunning,Alexithymia,6
+Bullying/Shunning,Anxiety + Social Anxiety,6
+Bullying/Shunning,Avoidance,6
+Bullying/Shunning,Burn(out),20
+Bullying/Shunning,Depression,15
+Bullying/Shunning,Dysregulation,15
+Bullying/Shunning,Homelessness,6
+Bullying/Shunning,Inactivity,8
+Bullying/Shunning,Interoception Issues,6
+Bullying/Shunning,Meltdown,20
+Bullying/Shunning,PTSD/C-PTSD,
+Bullying/Shunning,Sensory Dysregulation,30
+Bullying/Shunning,Shutdown,20
+Bullying/Shunning,SI->MD,6
+Bullying/Shunning,Stigma,10
+Bullying/Shunning,Substance Abuse,6
+Bullying/Shunning,Toxic Stress,8
+Bullying/Shunning,Trouble Maintaining Relationships,6
+Burn(out),Inactivity,30
+Childhood Toxic Stress,Bipolar Disorder,6
+Childhood Toxic Stress,Depression,20
+Childhood Toxic Stress,Dysregulation,20
+Childhood Toxic Stress,Psychosis/Schizophrenia,6
+Childhood Toxic Stress,PTSD/C-PTSD,6
+Childhood Toxic Stress,Sensory Dysregulation,6
+Childhood Toxic Stress,Toxic Stress,8
+Childhood Toxic Stress,Trouble Maintaining Relationships,6
+Chronic Infection,Cancer,1
+Chronic Infection,Depression,15
+Chronic Infection,Dysregulation,20
+Chronic Infection,Inactivity,10
+Chronic Infection,Sensory Dysregulation,15
+Chronic Insomnia,Accident risk,4
+Chronic Insomnia,Anxiety + Social Anxiety,4
+Chronic Insomnia,Brain Fog,20
+Chronic Insomnia,Burn(out),20
+Chronic Insomnia,Depression,15
+Chronic Insomnia,Difficulty Concentrating,20
+Chronic Insomnia,Digestive Problems,4
+Chronic Insomnia,Dysregulation,20
+Chronic Insomnia,Fatigue,20
+Chronic Insomnia,Headache/Migraine,10
+Chronic Insomnia,Heart Disease,4
+Chronic Insomnia,High Blood Pressure,4
+Chronic Insomnia,Homelessness,20
+Chronic Insomnia,Inactivity,10
+Chronic Insomnia,Irritability,20
+Chronic Insomnia,Meltdown,20
+Chronic Insomnia,Poor School/Job Performance,4
+Chronic Insomnia,Sensory Dysregulation,20
+Chronic Insomnia,Shutdown,20
+Chronic Insomnia,Substance Abuse,4
+Chronic Insomnia,Working Memory Issues,4
+Cold/Flu/Infection,Brain Fog,10
+Cold/Flu/Infection,Burn(out),5
+Cold/Flu/Infection,Depression,10
+Cold/Flu/Infection,Difficulty Concentrating,5
+Cold/Flu/Infection,Dysregulation,10
+Cold/Flu/Infection,Fatigue,10
+Cold/Flu/Infection,Headache/Migraine,10
+Cold/Flu/Infection,Inactivity,10
+Cold/Flu/Infection,Irritability,5
+Cold/Flu/Infection,Isolation/Loneliness,15
+Cold/Flu/Infection,Meltdown,10
+Cold/Flu/Infection,Sensory Dysregulation,15
+Cold/Flu/Infection,Shutdown,10
+Cold/Flu/Infection,Skin Problems,10
+Cold/Flu/Infection,Swollen glands,20
+Cold/Flu/Infection,Working Memory Issues,15
+Compensation,Alexithymia,15
+Compensation,Burn(out),15
+Compensation,Interoception Issues,15
+Compensation,Meltdown,15
+Compensation,Sensory Dysregulation,15
+Compensation,Shutdown,15
+Death of a Loved One,Anxiety + Social Anxiety,10
+Death of a Loved One,Depression,10
+Death of a Loved One,Isolation/Loneliness,10
+Death of a Loved One,PTSD/C-PTSD,10
+Death of a Loved One,Trouble Maintaining Relationships,10
+Depression,Burn(out),6
+Depression,Chronic Insomnia,6
+Depression,Dysregulation,20
+Depression,Fibromyalgia/AMPS,10
+Depression,Headache/Migraine,10
+Depression,Inactivity,10
+Depression,Interoception Issues,6
+Depression,Irritability,15
+Depression,Isolation/Loneliness,6
+Depression,Meltdown,10
+Depression,PTSD/C-PTSD,
+Depression,Sensory Dysregulation,6
+Depression,Shutdown,10
+Depression,SI->MD,6
+Depression,Substance Abuse,10
+Depression,Trouble Maintaining Relationships,6
+Dysregulation,Alexithymia,10
+Dysregulation,Anxiety + Social Anxiety,12
+Dysregulation,Burn(out),20
+Dysregulation,Chronic Insomnia,10
+Dysregulation,Depression,15
+Dysregulation,Difficulty Concentrating,20
+Dysregulation,Executive Function,10
+Dysregulation,Fatigue,20
+Dysregulation,Inactivity,10
+Dysregulation,Interoception Issues,10
+Dysregulation,Irritability,15
+Dysregulation,Isolation/Loneliness,15
+Dysregulation,Meltdown,10
+Dysregulation,Sensory Dysregulation,30
+Dysregulation,SI->MD,10
+Dysregulation,Stigma,10
+Dysregulation,Substance Abuse,10
+Dysregulation,Toxic Stress,8
+Dysregulation,Trouble Maintaining Relationships,6
+Dysregulation,Working Memory Issues,20
+Fibromyalgia/AMPS,Alondynia,10
+Fibromyalgia/AMPS,Brain Fog,10
+Fibromyalgia/AMPS,Chronic Insomnia,10
+Fibromyalgia/AMPS,Depression,20
+Fibromyalgia/AMPS,Dysregulation,10
+Fibromyalgia/AMPS,Fatigue,20
+Fibromyalgia/AMPS,Headache/Migraine,10
+Fibromyalgia/AMPS,Inactivity,15
+Fibromyalgia/AMPS,Isolation/Loneliness,10
+Fibromyalgia/AMPS,Sensory Dysregulation,10
+Fibromyalgia/AMPS,Substance Abuse,15
+Gaslighting,Alexithymia,8
+Gaslighting,Anxiety + Social Anxiety,8
+Gaslighting,Avoidance,8
+Gaslighting,Burn(out),20
+Gaslighting,Depression,10
+Gaslighting,Dysregulation,15
+Gaslighting,Homelessness,8
+Gaslighting,Interoception Issues,8
+Gaslighting,Meltdown,20
+Gaslighting,PTSD/C-PTSD,20
+Gaslighting,Sensory Dysregulation,50
+Gaslighting,Shutdown,20
+Gaslighting,SI->MD,8
+Gaslighting,Stigma,10
+Gaslighting,Substance Abuse,8
+Gaslighting,Toxic Stress,8
+Gaslighting,Trouble Maintaining Relationships,6
+Headache/Migraine,Burn(out),5
+Headache/Migraine,Depression,15
+Headache/Migraine,Difficulty Concentrating,20
+Headache/Migraine,Dysregulation,10
+Headache/Migraine,Fatigue,20
+Headache/Migraine,Inactivity,10
+Headache/Migraine,Irritability,20
+Headache/Migraine,Isolation/Loneliness,20
+Headache/Migraine,Meltdown,20
+Headache/Migraine,Sensory Dysregulation,20
+Headache/Migraine,Shutdown,20
+Headache/Migraine,Substance Abuse,15
+Headache/Migraine,Working Memory Issues,20
+Inactivity,Depression,20
+Interoception Issues,Alexithymia,10
+Interoception Issues,Burn(out),10
+Interoception Issues,Chronic Insomnia,10
+Interoception Issues,Dysregulation,10
+Interoception Issues,Fatigue,10
+Interoception Issues,Fibromyalgia/AMPS,10
+Interoception Issues,Irritability,10
+Interoception Issues,Meltdown,10
+Interoception Issues,Sensory Dysregulation,10
+Interoception Issues,Shutdown,10
+Isolation/Loneliness,Depression,20
+Isolation/Loneliness,Dysregulation,10
+Isolation/Loneliness,Inactivity,10
+Isolation/Loneliness,Sensory Dysregulation,10
+Isolation/Loneliness,Stigma,10
+Masking,Alexithymia,10
+Masking,Burn(out),10
+Masking,Interoception Issues,10
+Masking,Meltdown,10
+Masking,Sensory Dysregulation,10
+Masking,Shutdown,10
+Meltdown,Burn(out),5
+Meltdown,Inactivity,10
+Meltdown,Shutdown,15
+Natural Disaster,PTSD/C-PTSD,
+Psychosis/Schizophrenia,Anxiety + Social Anxiety,20
+Psychosis/Schizophrenia,Bipolar Disorder,2
+Psychosis/Schizophrenia,Cancer,2
+Psychosis/Schizophrenia,Depression,2
+Psychosis/Schizophrenia,Dysregulation,2
+Psychosis/Schizophrenia,Heart Disease,2
+Psychosis/Schizophrenia,Homelessness,20
+Psychosis/Schizophrenia,Inactivity,10
+Psychosis/Schizophrenia,PTSD/C-PTSD,
+Psychosis/Schizophrenia,Sensory Dysregulation,2
+Psychosis/Schizophrenia,SI->MD,2
+Psychosis/Schizophrenia,Substance Abuse,15
+Psychosis/Schizophrenia,Trouble Maintaining Relationships,15
+Psychosis/Schizophrenia,Weight changes,2
+PTSD/C-PTSD,Alexithymia,6
+PTSD/C-PTSD,Anxiety + Social Anxiety,6
+PTSD/C-PTSD,Avoidance,6
+PTSD/C-PTSD,Burn(out),20
+PTSD/C-PTSD,Chronic Insomnia,15
+PTSD/C-PTSD,Depression,15
+PTSD/C-PTSD,Dysregulation,15
+PTSD/C-PTSD,Homelessness,6
+PTSD/C-PTSD,Inactivity,8
+PTSD/C-PTSD,Interoception Issues,6
+PTSD/C-PTSD,Meltdown,20
+PTSD/C-PTSD,Sensory Dysregulation,30
+PTSD/C-PTSD,Shutdown,20
+PTSD/C-PTSD,SI->MD,6
+PTSD/C-PTSD,Stigma,10
+PTSD/C-PTSD,Substance Abuse,6
+PTSD/C-PTSD,Toxic Stress,8
+PTSD/C-PTSD,Trouble Maintaining Relationships,6
+Sensory Dysregulation,Accident risk,8
+Sensory Dysregulation,Alexithymia,10
+Sensory Dysregulation,Anxiety + Social Anxiety,12
+Sensory Dysregulation,Burn(out),20
+Sensory Dysregulation,Chronic Insomnia,10
+Sensory Dysregulation,Depression,15
+Sensory Dysregulation,Difficulty Concentrating,20
+Sensory Dysregulation,Dysregulation,20
+Sensory Dysregulation,Executive Function,10
+Sensory Dysregulation,Fatigue,20
+Sensory Dysregulation,Inactivity,10
+Sensory Dysregulation,Interoception Issues,10
+Sensory Dysregulation,Irritability,15
+Sensory Dysregulation,Isolation/Loneliness,15
+Sensory Dysregulation,Meltdown,20
+Sensory Dysregulation,Shutdown,20
+Sensory Dysregulation,SI->MD,10
+Sensory Dysregulation,Stigma,10
+Sensory Dysregulation,Substance Abuse,10
+Sensory Dysregulation,Toxic Stress,8
+Sensory Dysregulation,Trouble Maintaining Relationships,10
+Sensory Dysregulation,Working Memory Issues,20
+Serious Medical Condition,PTSD/C-PTSD,10
+Shutdown,Burn(out),10
+Shutdown,Inactivity,20
+Shutdown,Meltdown,5
+Stigma,Inactivity,10
+Stigma,Isolation/Loneliness,20
+Stigma,PTSD/C-PTSD,10
+Stigma,Substance Abuse,15
+Stigma,Toxic Stress,20
+Substance Abuse,Homelessness,10
+Substance Abuse,PTSD/C-PTSD,10
+Susceptible to viral infections,Cancer,2
+Toxic Stress,Allergies/Asthma,2
+Toxic Stress,Autoimmune Diseases,2
+Toxic Stress,Bipolar Disorder,2
+Toxic Stress,Brain Fog,2
+Toxic Stress,Chronic Infection,2
+Toxic Stress,Chronic Insomnia,10
+Toxic Stress,Depression,20
+Toxic Stress,Difficulty Concentrating,10
+Toxic Stress,Digestive Problems,2
+Toxic Stress,Dysregulation,15
+Toxic Stress,Fatigue,10
+Toxic Stress,Headache/Migraine,10
+Toxic Stress,Inactivity,10
+Toxic Stress,Increased risk of diabetes,2
+Toxic Stress,increased risk of ulcerative colitis,2
+Toxic Stress,Increased time to recover from illness,2
+Toxic Stress,Irritability,10
+Toxic Stress,Muscle Weakness,2
+Toxic Stress,Psychosis/Schizophrenia,2
+Toxic Stress,PTSD/C-PTSD,2
+Toxic Stress,Sensory Dysregulation,20
+Toxic Stress,Skin Problems,15
+Toxic Stress,Susceptible to viral infections,2
+Toxic Stress,Trouble Maintaining Relationships,6
+Toxic Stress,Weight changes,2
+Toxic Stress,Working Memory Issues,20
+Trouble Maintaining Relationships,Bullying/Shunning,2
+Trouble Maintaining Relationships,Depression,20
+Trouble Maintaining Relationships,Dysregulation,20
+Trouble Maintaining Relationships,Gaslighting,2
+Trouble Maintaining Relationships,Isolation/Loneliness,2
+Trouble Maintaining Relationships,Stigma,10
+War,PTSD/C-PTSD,20
+Racism,Alexithymia,20
+Racism,Anxiety + Social Anxiety,20
+Racism,Avoidance,20
+Racism,Burn(out),20
+Racism,Depression,20
+Racism,Dysregulation,20
+Racism,Homelessness,20
+Racism,Inactivity,20
+Racism,Interoception Issues,20
+Racism,Meltdown,20
+Racism,PTSD/C-PTSD,20
+Racism,Sensory Dysregulation,20
+Racism,Shutdown,20
+Racism,SI->MD,20
+Racism,Stigma,20
+Racism,Substance Abuse,20
+Racism,Toxic Stress,20
+Racism,Trouble Maintaining Relationships,20
+LGBTQIA+ Bigotry,Alexithymia,20
+LGBTQIA+ Bigotry,Anxiety + Social Anxiety,20
+LGBTQIA+ Bigotry,Avoidance,20
+LGBTQIA+ Bigotry,Burn(out),20
+LGBTQIA+ Bigotry,Depression,20
+LGBTQIA+ Bigotry,Dysregulation,20
+LGBTQIA+ Bigotry,Homelessness,20
+LGBTQIA+ Bigotry,Inactivity,20
+LGBTQIA+ Bigotry,Interoception Issues,20
+LGBTQIA+ Bigotry,Meltdown,20
+LGBTQIA+ Bigotry,PTSD/C-PTSD,20
+LGBTQIA+ Bigotry,Sensory Dysregulation,20
+LGBTQIA+ Bigotry,Shutdown,20
+LGBTQIA+ Bigotry,SI->MD,20
+LGBTQIA+ Bigotry,Stigma,20
+LGBTQIA+ Bigotry,Substance Abuse,20
+LGBTQIA+ Bigotry,Toxic Stress,20
+LGBTQIA+ Bigotry,Trouble Maintaining Relationships,20
+Misogyny,Alexithymia,20
+Misogyny,Anxiety + Social Anxiety,20
+Misogyny,Avoidance,20
+Misogyny,Burn(out),20
+Misogyny,Depression,20
+Misogyny,Dysregulation,20
+Misogyny,Homelessness,20
+Misogyny,Inactivity,20
+Misogyny,Interoception Issues,20
+Misogyny,Meltdown,20
+Misogyny,PTSD/C-PTSD,20
+Misogyny,Sensory Dysregulation,20
+Misogyny,Shutdown,20
+Misogyny,SI->MD,20
+Misogyny,Stigma,20
+Misogyny,Substance Abuse,20
+Misogyny,Toxic Stress,20
+Misogyny,Trouble Maintaining Relationships,20
